@@ -26,6 +26,7 @@
   - [4.19. Recovery guidance](#419-recovery-guidance)
   - [4.20. Controlled task environment](#420-controlled-task-environment)
   - [4.21. Autochecker-verifiable outcomes](#421-autochecker-verifiable-outcomes)
+  - [4.22. Separate-commits constraint](#422-separate-commits-constraint)
 - [5. Conceptual review dimensions](#5-conceptual-review-dimensions)
   - [5.1. D1. Learning objective clarity](#51-d1-learning-objective-clarity)
   - [5.2. D2. Step-by-step completeness](#52-d2-step-by-step-completeness)
@@ -474,6 +475,23 @@ Rules for autochecker-compatible criteria:
 - Avoid open-ended deliverables such as "write a short paragraph" or "describe your findings." Replace them with structured deliverables: a file at a known path, exact expected values in a questionnaire, or a state observable via `SSH`.
 - For file-content checks, constrain the answer format to a single value per field, an exact string, or a regex-matchable pattern — not free text.
 - When a criterion is about understanding (e.g., "student explains X"), replace it with a verifiable proxy: a questionnaire answer, a file at a specific path, or a commit with a required message format.
+
+### 4.22. Separate-commits constraint
+
+When a task contains multiple distinct fixes or implementations (e.g., two bug fixes across different parts), require each to land in its own commit. Place a `> [!IMPORTANT]` block immediately after the last commit step of the first fix — before the next part's `###` heading begins:
+
+```markdown
+> [!IMPORTANT]
+> Each fix must be a **separate commit**. Do not combine the Part A and Part B fixes into one commit.
+```
+
+Add a matching acceptance criterion:
+
+```markdown
+- [ ] The Part A fix and Part B fix are separate commits.
+```
+
+This pairs with [Multi-bug debugging tasks](#417-multi-bug-debugging-tasks): when multiple bugs are spread across parts, the commit history must reflect each fix independently so reviewers and the autochecker can attribute each change to the correct part.
 
 ---
 
