@@ -9,6 +9,8 @@
   - [`bash`](#bash)
   - [`Git Bash` (`Windows`)](#git-bash-windows)
   - [`zsh`](#zsh)
+- [Shell profile](#shell-profile)
+  - [Reload the shell profile](#reload-the-shell-profile)
 - [Shell prompt](#shell-prompt)
 - [Shell command](#shell-command)
 - [Current working directory](#current-working-directory)
@@ -65,6 +67,27 @@ It provides a Unix-like shell environment on Windows.
 
 `zsh` is the default shell on modern `macOS` and is also common on Linux.
 Most `bash` commands in this course work in `zsh` as well.
+
+## Shell profile
+
+A shell profile is a configuration file that the shell reads automatically when it starts.
+It is used to set environment variables, define aliases, and customize the [shell](#what-is-a-shell) environment.
+
+Common profile files:
+
+- `~/.bashrc` — read by `bash` for every new non-login interactive shell (e.g., a `VS Code` terminal).
+- `~/.bash_profile` — read by `bash` for [login shells](#login-shell) (e.g., an [`SSH`](./ssh.md#what-is-ssh) session).
+- `~/.zshrc` — read by `zsh` for every new interactive shell.
+
+### Reload the shell profile
+
+1. To reload the shell profile and apply changes to the current session,
+
+   [run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
+
+   ```terminal
+   source ~/.bashrc
+   ```
 
 ## Shell prompt
 
