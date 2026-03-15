@@ -344,7 +344,7 @@ When asking students to replace a single placeholder, include the word "placehol
 **Multiple placeholders — bullet list:**
 
 ~~~markdown
-Replace placeholders:
+Replace the placeholders:
 
 - [`<placeholder-1>`](link-to-explanation)
 - [`<placeholder-2>`](link-to-explanation)
