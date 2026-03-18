@@ -1,4 +1,4 @@
-# Lab 6 — Build Your Own Agent
+# Lab 7 — Build a Client with an AI Coding Agent
 
 The lab gets updated regularly, so do [sync your fork with the upstream](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork#syncing-a-fork-branch-from-the-command-line) from time to time.
 
@@ -14,58 +14,64 @@ The lab gets updated regularly, so do [sync your fork with the upstream](https:/
 
 ## Lab story
 
-> "Everybody should implement an agent loop at some point. It's the hello-world of agentic engineering."
+> "The best way to understand an API is to build a client for it."
 
-You will build a CLI agent that can answer questions by reading the lab docs and querying the backend API. You then will evaluate the agent against a benchmark.
+You will use an AI coding agent (Qwen Code) to build a Telegram bot client for the LMS backend you deployed in previous labs. The bot talks to your backend, fetches real data, and uses an LLM to answer natural language questions.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                                                              │
 │  ┌──────────────┐     ┌──────────────────────────────────┐   │
-│  │  agent.py    │────▶│  OpenRouter API                  │   │
-│  │  (CLI)       │◀────│  (a free LLM with tool use)      │   │
-│  └──────┬───────┘     └──────────────────────────────────┘   │
-│         │                                                    │
-│         │ tool calls                                         │
-│         ├──────────▶ read_file(path) ──▶ source code, wiki/  │
-│         ├──────────▶ list_files(dir)  ──▶ files and folders  │
-│         ├──────────▶ query_api(path)  ──▶ backend API        │
-│         │                                                    │
-│  ┌──────┴───────┐                                            │
-│  │  Docker      │  app (FastAPI) ─── postgres (data)         │
-│  │  Compose     │  caddy (frontend)                          │
-│  └──────────────┘                                            │
+│  │  Telegram     │────▶│  Your Bot                        │   │
+│  │  User         │◀────│  (aiogram / python-telegram-bot) │   │
+│  └──────────────┘     └──────┬───────────────────────────┘   │
+│                              │                               │
+│                              │ slash commands + plain text    │
+│                              ├──────────▶ /start, /help      │
+│                              ├──────────▶ /health, /labs     │
+│                              ├──────────▶ intent router ──▶ LLM
+│                              │                    │          │
+│                              │                    ▼          │
+│  ┌──────────────┐     ┌──────┴───────┐    tools/actions     │
+│  │  Docker       │     │  LMS Backend  │◀───── GET /items    │
+│  │  Compose      │     │  (FastAPI)    │◀───── GET /analytics│
+│  │               │     │  + PostgreSQL │◀───── POST /sync    │
+│  └──────────────┘     └──────────────┘                      │
 └──────────────────────────────────────────────────────────────┘
 ```
 
 ## Learning advice
 
-This lab is different from previous ones. You are not following step-by-step instructions — you are building something and iterating until it works. Use your coding agent to help you understand and plan:
+This lab is about learning to collaborate with an AI coding agent as a development partner. You are not following step-by-step instructions — you are building a product.
 
-> Read task X. What exactly do we need to deliver? Explain, I want to understand.
+Use your coding agent to help you plan and implement:
 
-> Why does an agent need a loop? Walk me through the flow.
+> Here are the requirements. Create a development plan.
 
-> My agent failed this question: "...". Diagnose why and suggest a fix.
+> Scaffold the project with a testable handler architecture.
 
-The agent you build is simple (~100-200 lines). The learning comes from debugging it against the benchmark.
+> Implement /health — it should call GET /items on my backend and report the status.
+
+> The bot should understand plain text like "which lab has the lowest pass rate?" — implement intent routing.
+
+The bot you build is practical (~200-400 lines). The learning comes from the iterative process of planning, building, testing, and debugging with agent assistance.
 
 ## Learning outcomes
 
 By the end of this lab, you should be able to:
 
-- Explain how an agentic loop works: user input → LLM → tool call → execute → feed result → repeat until final answer.
-- Integrate with an LLM API using the OpenAI-compatible chat completions format with tool/function calling.
-- Implement tools that read files, list directories, and query HTTP APIs, then register them as function-calling schemas.
-- Build a CLI that accepts structured input and produces structured output (JSON).
-- Debug agent behavior by examining tool call traces, identifying prompt issues, and fixing tool implementations.
-- Assess agent quality against a benchmark, iterating on prompts and tools to improve pass rate.
+- Use an AI coding agent to plan and implement a client application.
+- Design a testable handler architecture (logic separated from transport).
+- Connect a client to an existing REST API with authentication.
+- Implement natural language intent routing using LLM tool/function calling.
+- Debug integration issues iteratively with agent assistance.
+- Deploy a multi-service system (backend + bot) on a remote VM.
 
 In simple words, you should be able to say:
 >
-> 1. I built an agent that calls an LLM and answers questions!
-> 2. I gave it tools to read files and query my API!
-> 3. I iterated until it passed the evaluation benchmark!
+> 1. I built a Telegram bot that talks to my backend!
+> 2. I can ask it questions in plain language and it fetches the right data!
+> 3. I used an AI coding agent to plan and build the whole thing!
 
 ## Tasks
 
@@ -77,10 +83,8 @@ In simple words, you should be able to say:
 
 ### Required
 
-1. [Call an LLM from code](./lab/tasks/required/task-1.md#call-an-llm-from-code)
-2. [The documentation agent](./lab/tasks/required/task-2.md#the-documentation-agent)
-3. [The system agent](./lab/tasks/required/task-3.md#the-system-agent)
+*Task descriptions will be added here.*
 
 ### Optional (recommended)
 
-1. [Advanced agent features](./lab/tasks/optional/task-1.md#advanced-agent-features)
+*Optional tasks will be added here.*
