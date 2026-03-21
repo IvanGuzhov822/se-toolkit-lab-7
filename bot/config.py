@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     bot_token: str = ""
-    lms_api_base_url: str = "https://lms.innopolis.university"
+    lms_api_base_url: str = "http://localhost:42002"
     lms_api_key: str = ""
     llm_api_key: str = ""
 

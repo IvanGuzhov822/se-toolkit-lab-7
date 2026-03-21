@@ -65,7 +65,9 @@ async def run_telegram_mode() -> None:
 
     @dp.message(Command("scores"))
     async def cmd_scores(message: types.Message):
-        response = await scores.handle_scores(f"/scores {message.text.split(maxsplit=1)[1] if len(message.text.split()) > 1 else ''}")
+        args = message.text.split(maxsplit=1)
+        command_with_args = f"/scores {args[1]}" if len(args) > 1 else "/scores"
+        response = await scores.handle_scores(command_with_args)
         await message.answer(response)
 
     await dp.start_polling(bot)
