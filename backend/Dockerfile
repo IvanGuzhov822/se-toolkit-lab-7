@@ -65,3 +65,4 @@ WORKDIR /app
 
 # Run the FastAPI application
 CMD ["sh", "-c", "python backend/app/run.py"]
+
