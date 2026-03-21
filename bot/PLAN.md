@@ -1,15 +1,15 @@
-План разработки Telegram-бота для LMS
+Telegram Bot Development Plan for LMS
 
-Этот документ описывает подход к реализации всех задач бота включая базовую архитектуру, интеграцию с backend, маршрутизацию намерений и развёртывание.
+This document describes the approach to implementing all bot tasks including basic architecture, backend integration, intent routing, and deployment.
 
-Архитектура бота построена вокруг принципа тестируемости хендлеров. Основная идея заключается в том, что логика обработки команд отделена от транспортного слоя Telegram. Каждый хендлер представляет собой функцию, которая принимает строку ввода пользователя и возвращает строку ответа. Это позволяет запускать хендлеры напрямую в тестовом режиме без подключения к Telegram API, что упрощает разработку и тестирование.
+The bot architecture is built around the principle of handler testability. The core idea is that command processing logic is separated from the Telegram transport layer. Each handler is a function that takes a user input string and returns a response string. This allows running handlers directly in test mode without connecting to the Telegram API, which simplifies development and testing.
 
-Сначала будет завершена базовая структура проекта с реализацией всех необходимых хендлеров для команд /start, /help, /health, /labs и /scores. Каждый хендлер будет возвращать заглушку, которая затем будет заменена на реальную логику.
+First, the basic project structure will be completed with implementation of all necessary handlers for /start, /help, /health, /labs, and /scores commands. Each handler will return a placeholder that will later be replaced with real logic.
 
-Интеграция с backend будет реализована через сервисный слой в директории services. LMSClient обеспечит взаимодействие с API системы управления обучением для получения информации о лабораторных работах и оценках студентов. Будет реализована обработка ошибок и повторные попытки при временных сбоях сети.
+Backend integration will be implemented through the service layer in the services directory. LMSClient will provide interaction with the Learning Management System API to retrieve information about lab assignments and student scores. Error handling and retry logic for temporary network failures will be implemented.
 
-Маршрутизация намерений будет расширена за пределы простых команд. Бот будет распознавать естественные запросы пользователей вроде "какие лабораторные доступны" или "моя оценка за lab-04" и направлять их к соответствующим хендлерам. Для этого будет использована простая система ключевых слов с возможностью расширения до полноценного NLP в будущем.
+Intent routing will be extended beyond simple commands. The bot will recognize natural user requests like "what labs are available" or "my score for lab-04" and route them to the appropriate handlers. A simple keyword-based system will be used with the possibility of expansion to full NLP in the future.
 
-Развёртывание бота будет выполнено на виртуальной машине с использованием Docker Compose для согласованности с остальной инфраструктурой проекта. Будет настроен автоматический перезапуск при сбоях и ведение логов для отладки проблем в продакшене.
+Bot deployment will be performed on a virtual machine using Docker Compose for consistency with the rest of the project infrastructure. Automatic restart on failure and logging for debugging production issues will be configured.
 
-Тестирование будет включать как автоматические тесты в режиме --test, так и ручную проверку через Telegram. Перед каждым слиянием изменений требуется прохождение всех тестов и проверка работы бота в реальном чате.
+Testing will include both automated tests in --test mode and manual verification through Telegram. Before each merge, all tests must pass and the bot must be verified to work in a real chat.
