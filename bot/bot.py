@@ -33,7 +33,7 @@ async def run_test_mode(command: str) -> None:
 
 async def run_telegram_mode() -> None:
     from aiogram import Bot, Dispatcher, types
-    from aiogram.filters import CommandStart
+    from aiogram.filters import Command, CommandStart
     from config import settings
 
     if not settings.bot_token:
