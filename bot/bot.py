@@ -2,8 +2,9 @@ import argparse
 import asyncio
 import sys
 
-from handlers import help, health, labs, scores, start
+from handlers import help, health, labs, scores, start, natural_language
 from services.lms_api import lms_client
+from services.intent_router import get_tools
 
 
 COMMANDS = {
@@ -14,6 +15,12 @@ COMMANDS = {
     "/scores": scores.handle_scores,
 }
 
+KEYBOARD_BUTTONS = [
+    [{"text": "📚 Available Labs", "callback_data": "labs"}, {"text": "📊 My Scores", "callback_data": "scores"}],
+    [{"text": "❤️ Health Check", "callback_data": "health"}, {"text": "❓ Help", "callback_data": "help"}],
+    [{"text": "🏆 Top Learners", "callback_data": "top_learners"}, {"text": "📈 Timeline", "callback_data": "timeline"}],
+]
+
 
 async def process_command(command: str) -> str:
     parts = command.strip().split()
@@ -23,7 +30,11 @@ async def process_command(command: str) -> str:
     if handler:
         return await handler(command)
 
-    return "Unknown command. Use /help to see available commands."
+    return await natural_language.handle_natural_language(command)
+
+
+async def process_natural_query(query: str) -> str:
+    return await natural_language.handle_natural_language(query)
 
 
 async def run_test_mode(command: str) -> None:
@@ -32,8 +43,9 @@ async def run_test_mode(command: str) -> None:
 
 
 async def run_telegram_mode() -> None:
-    from aiogram import Bot, Dispatcher, types
-    from aiogram.filters import Command, CommandStart
+    from aiogram import Bot, Dispatcher, types, F
+    from aiogram.filters import CommandStart, Command
+    from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
     from config import settings
 
     if not settings.bot_token:
@@ -43,15 +55,25 @@ async def run_telegram_mode() -> None:
     bot = Bot(token=settings.bot_token)
     dp = Dispatcher()
 
+    def get_main_keyboard() -> InlineKeyboardMarkup:
+        return InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text="📚 Available Labs", callback_data="labs")],
+                [InlineKeyboardButton(text="📊 My Scores", callback_data="scores")],
+                [InlineKeyboardButton(text="❤️ Health Check", callback_data="health")],
+                [InlineKeyboardButton(text="❓ Help", callback_data="help")],
+            ]
+        )
+
     @dp.message(CommandStart())
     async def cmd_start(message: types.Message):
         response = await start.handle_start("/start")
-        await message.answer(response)
+        await message.answer(response, reply_markup=get_main_keyboard())
 
     @dp.message(Command("help"))
     async def cmd_help(message: types.Message):
         response = await help.handle_help("/help")
-        await message.answer(response)
+        await message.answer(response, reply_markup=get_main_keyboard())
 
     @dp.message(Command("health"))
     async def cmd_health(message: types.Message):
@@ -69,6 +91,35 @@ async def run_telegram_mode() -> None:
         command_with_args = f"/scores {args[1]}" if len(args) > 1 else "/scores"
         response = await scores.handle_scores(command_with_args)
         await message.answer(response)
+
+    @dp.callback_query(F.data == "labs")
+    async def callback_labs(callback: types.CallbackQuery):
+        response = await labs.handle_labs("/labs")
+        await callback.message.answer(response)
+        await callback.answer()
+
+    @dp.callback_query(F.data == "scores")
+    async def callback_scores(callback: types.CallbackQuery):
+        await callback.message.answer("Send me the lab name, e.g., 'lab-04'")
+        await callback.answer()
+
+    @dp.callback_query(F.data == "health")
+    async def callback_health(callback: types.CallbackQuery):
+        response = await health.handle_health("/health")
+        await callback.message.answer(response)
+        await callback.answer()
+
+    @dp.callback_query(F.data == "help")
+    async def callback_help(callback: types.CallbackQuery):
+        response = await help.handle_help("/help")
+        await callback.message.answer(response)
+        await callback.answer()
+
+    @dp.message()
+    async def handle_text_message(message: types.Message):
+        if message.text:
+            response = await natural_language.handle_natural_language(message.text)
+            await message.answer(response)
 
     await dp.start_polling(bot)
 
