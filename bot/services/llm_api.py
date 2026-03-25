@@ -14,7 +14,7 @@ class LLMClient:
             self._client = httpx.AsyncClient(
                 base_url=self.base_url,
                 headers={"Authorization": f"Bearer {self.api_key}"},
-                timeout=60.0,
+                timeout=120.0,
             )
         return self._client
 
@@ -22,7 +22,7 @@ class LLMClient:
         self,
         messages: list[dict],
         tools: list[dict],
-        max_iterations: int = 5,
+        max_iterations: int = 10,
     ) -> str:
         client = await self._get_client()
 

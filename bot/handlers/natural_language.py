@@ -35,7 +35,7 @@ async def handle_natural_language(message: str) -> str:
         {"role": "user", "content": message},
     ]
 
-    max_iterations = 5
+    max_iterations = 10
 
     for iteration in range(max_iterations):
         try:
@@ -46,7 +46,7 @@ async def handle_natural_language(message: str) -> str:
             async with httpx.AsyncClient(
                 base_url=base_url,
                 headers={"Authorization": f"Bearer {api_key}"},
-                timeout=60.0,
+                timeout=120.0,
             ) as client:
                 response = await client.post(
                     "/chat/completions",
@@ -75,6 +75,9 @@ async def handle_natural_language(message: str) -> str:
 
                         result = await execute_tool(func_name, args)
                         formatted_result = format_tool_result(func_name, result, args)
+                        
+                        print(f"[tool] LLM called: {func_name}({args})", file=sys.stderr)
+                        print(f"[tool] Result: {len(result) if isinstance(result, (list, dict)) else 'error'} items", file=sys.stderr)
 
                         messages.append({
                             "role": "tool",
@@ -84,6 +87,7 @@ async def handle_natural_language(message: str) -> str:
                 else:
                     content = choice.get("content", "I couldn't process your request.")
                     if content:
+                        print(f"[response] {content[:100]}...", file=sys.stderr)
                         return content
                     return "I don't have enough information to answer that question. Try asking about available labs, scores, or pass rates."
 
