@@ -8,27 +8,9 @@
 
 This is what a customer might tell you. Your job is to turn it into a working product using an AI coding agent (Qwen Code) as your development partner.
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                                                              │
-│  ┌──────────────┐     ┌──────────────────────────────────┐   │
-│  │  Telegram    │────▶│  Your Bot                        │   │
-│  │  User        │◀────│  (aiogram / python-telegram-bot) │   │
-│  └──────────────┘     └──────┬───────────────────────────┘   │
-│                              │                               │
-│                              │ slash commands + plain text    │
-│                              ├───────▶ /start, /help         │
-│                              ├───────▶ /health, /labs        │
-│                              ├───────▶ intent router ──▶ LLM │
-│                              │                    │          │
-│                              │                    ▼          │
-│  ┌──────────────┐     ┌──────┴───────┐    tools/actions      │
-│  │  Docker      │     │  LMS Backend │◀───── GET /items      │
-│  │  Compose     │     │  (FastAPI)   │◀───── GET /analytics  │
-│  │              │     │  + PostgreSQL│◀───── POST /sync      │
-│  └──────────────┘     └──────────────┘                       │
-└──────────────────────────────────────────────────────────────┘
-```
+**Architecture overview:**
+
+Telegram users interact with the bot through slash commands (like `/start`, `/help`, `/health`, `/labs`) and plain text queries. The bot uses an intent router powered by an LLM to understand what the user wants. The bot runs as a Docker container alongside the LMS backend (FastAPI + PostgreSQL), which is also containerized and managed via Docker Compose. The bot communicates with the backend through the Docker network using service names instead of localhost.
 
 ## Requirements
 
@@ -91,3 +73,61 @@ By the end of this lab, you should be able to say:
 2. [Backend Integration](./lab/tasks/required/task-2.md) — P0: slash commands + real data
 3. [Intent-Based Natural Language Routing](./lab/tasks/required/task-3.md) — P1: LLM tool use
 4. [Containerize and Document](./lab/tasks/required/task-4.md) — P3: containerize + deploy
+
+## Deploy
+
+### Environment variables
+
+The bot requires the following environment variables in `.env.docker.secret`:
+
+- `BOT_TOKEN` — Telegram bot token from @BotFather
+- `LMS_API_KEY` — API key for the LMS backend
+- `LLM_API_KEY` — API key for the LLM service
+- `LLM_API_BASE_URL` — LLM API base URL (use `host.docker.internal:42005` on VM)
+- `LLM_API_MODEL` — LLM model name (default: `qwen-coder`)
+- `BACKEND_CONTAINER_PORT` — Backend container port (default: `8000`)
+
+### Deploy with Docker Compose
+
+```bash
+cd ~/se-toolkit-lab-7
+
+# Stop the nohup bot process if running
+pkill -f "bot.py" 2>/dev/null
+
+# Build and start all services
+docker compose --env-file .env.docker.secret up --build -d
+
+# Check service status
+docker compose --env-file .env.docker.secret ps
+
+# View bot logs
+docker compose --env-file .env.docker.secret logs bot --tail 50
+```
+
+### Verify deployment
+
+```bash
+# Check bot container is running
+docker compose --env-file .env.docker.secret ps bot
+
+# Check backend health
+curl -sf http://localhost:42002/docs
+
+# Check bot logs for startup messages
+docker compose --env-file .env.docker.secret logs bot
+```
+
+Expected log output:
+- `Application started` — bot connected to Telegram
+- `HTTP Request: POST .../getUpdates` — bot is polling for messages
+- No Python tracebacks
+
+### Test in Telegram
+
+Send these commands to verify functionality:
+
+- `/start` — welcome message
+- `/health` — backend status
+- `what labs are available?` — LLM-powered query
+- `which lab has the lowest pass rate?` — multi-step reasoning
