@@ -1,5 +1,5 @@
 ARG REGISTRY_PREFIX=harbor.pg.innopolis.university/docker-hub-cache/
-FROM ${REGISTRY_PREFIX}astral/uv:python3.12-bookworm-slim AS builder
+FROM ${REGISTRY_PREFIX}astral/uv:python3.14-bookworm-slim AS builder
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 ENV UV_NO_DEV=1
 ENV UV_PYTHON_DOWNLOADS=0
@@ -19,7 +19,7 @@ COPY bot /app/bot
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --no-dev
 
-FROM ${REGISTRY_PREFIX}python:3.12-slim-bookworm
+FROM ${REGISTRY_PREFIX}python:3.14.2-slim-bookworm
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV LANG=C.UTF-8
